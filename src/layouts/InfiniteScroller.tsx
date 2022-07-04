@@ -2,11 +2,13 @@ import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import { RecoilRoot, atom, selector, useRecoilState, useRecoilValue, } from 'recoil'
 import { Loading } from '../components/Loading'
+import { Error } from '../components/Error'
 import { loadState } from '../recoil/GlobalState'
 
 export const InfiniteScroller = () => {
   const refOffset = useRef(0)
   const [pokemon, setPokemon] = useState<String[]>([])
+  const [error, setError] = useState(false)
   const [loading, setLoading] = useRecoilState(loadState)
 
   const loadMorePokemon = () => {
@@ -19,6 +21,10 @@ export const InfiniteScroller = () => {
         setPokemon( (oldPokemon:Array<String>) => [ ...oldPokemon, ...newPokemon ] )
       })
       .then(() => {
+        setLoading(false)
+      })
+      .catch((e) => {
+        setError(true)
         setLoading(false)
       })
       refOffset.current += 10
@@ -42,6 +48,7 @@ export const InfiniteScroller = () => {
           <div className='text-center border p-10' key={ key }>{ key + 1 }.{ value }</div>
         )
       }) }
+      <Error error={ error } />
       <Loading load={ loading } />
     </div>
   )
